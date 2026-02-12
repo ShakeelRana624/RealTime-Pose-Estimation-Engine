@@ -245,7 +245,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 📞 Support
 
 For questions and support:
-- 📧 Email: your.email@example.com
+- 📧 Email: shakeelrana6240@gmail.com
 - 🐛 Issues: GitHub Issues
 - 📖 Documentation: Project Wiki
 

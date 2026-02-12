@@ -19,12 +19,12 @@ if (this_directory / "requirements.txt").exists():
 setup(
     name="pose-estimation-module",
     version="1.0.0",
-    author="Your Name",
-    author_email="your.email@example.com",
+    author="Shakeel Rana",
+    author_email="shakeelrana6240@gmail.com",
     description="Real-time multi-person pose estimation with human activity detection",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/pose-estimation-module",
+    url="https://github.com/ShakeelRana624/RealTime-Pose-Estimation-Engine",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -65,9 +65,9 @@ setup(
         "": ["*.md", "*.txt", "*.yml", "*.yaml"],
     },
     project_urls={
-        "Bug Reports": "https://github.com/yourusername/pose-estimation-module/issues",
-        "Source": "https://github.com/yourusername/pose-estimation-module",
-        "Documentation": "https://github.com/yourusername/pose-estimation-module/wiki",
+        "Bug Reports": "https://github.com/ShakeelRana624/RealTime-Pose-Estimation-Engine/issues",
+        "Source": "https://github.com/ShakeelRana624/RealTime-Pose-Estimation-Engine",
+        "Documentation": "https://github.com/ShakeelRana624/RealTime-Pose-Estimation-Engine/wiki",
     },
     keywords=[
         "pose estimation",
