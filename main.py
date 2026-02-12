@@ -25,26 +25,15 @@ def main():
     print("🏃 WITH HUMAN ACTIVITY DETECTION")
     print("=" * 50)
     
-    # Show current configuration
-    print(f"📹 Video Source: {Config.VIDEO.VIDEO_SOURCE}")
-    print(f"💾 Save Video: {Config.VIDEO.SAVE_VIDEO}")
-    print(f"📊 Save Pose Data: {Config.POSE.SAVE_POSE_DATA}")
-    print(f"⚡ Confidence Threshold: {Config.POSE.CONFIDENCE_THRESHOLD}")
-    print("=" * 50)
-    
     # Check if model exists
-    model_path = Config.PROJECT.MODEL_PATH
+    model_path = "models/yolov8n-pose.pt"
     if not Path(model_path).exists():
         print(f"❌ Model not found: {model_path}")
         print("The model will be downloaded automatically on first run.")
     
-    # Create outputs directory only if saving is enabled
-    if Config.VIDEO.SAVE_VIDEO or Config.POSE.SAVE_POSE_DATA:
-        outputs_dir = Path("outputs")
-        outputs_dir.mkdir(exist_ok=True)
-        print("💾 Outputs will be saved to 'outputs/' directory")
-    else:
-        print("💾 Output saving is disabled")
+    # Create outputs directory if it doesn't exist
+    outputs_dir = Path("outputs")
+    outputs_dir.mkdir(exist_ok=True)
     
     # Initialize pose estimator
     try:
@@ -63,7 +52,7 @@ def main():
         sys.exit(1)
     
     # Use webcam
-    cap = cv2.VideoCapture(Config.VIDEO.VIDEO_SOURCE)
+    cap = cv2.VideoCapture(0)
     
     if not cap.isOpened():
         print("❌ Error: Could not open webcam")
@@ -77,15 +66,13 @@ def main():
     
     print(f"📹 Video: {width}x{height} @ {fps} FPS")
     print("🏃 Activities: STANDING, SITTING, WALKING, RUNNING")
+    print("💾 Outputs will be saved to 'outputs/' directory")
     print("Press 'q' to quit")
     
-    # Setup video writer only if saving is enabled
-    out = None
-    if Config.VIDEO.SAVE_VIDEO:
-        fourcc = cv2.VideoWriter_fourcc(*Config.VIDEO.OUTPUT_CODEC)
-        output_video_path = Config.PROJECT.OUTPUT_VIDEO
-        out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
-        print(f"🎬 Video will be saved to: {output_video_path}")
+    # Setup video writer
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    output_video_path = "outputs/pose_activity_output.mp4"
+    out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
     
     frame_count = 0
     start_time = time.time()
@@ -100,8 +87,8 @@ def main():
             # Process frame
             annotated_frame, pose_data = estimator.process_frame(frame)
             
-            # Save pose data only if enabled
-            if pose_data and Config.POSE.SAVE_POSE_DATA:
+            # Save pose data
+            if pose_data:
                 estimator.save_pose_data(pose_data, frame_count)
                 
                 # Update activity statistics
@@ -111,16 +98,15 @@ def main():
                         activity_stats[activity] = 0
                     activity_stats[activity] += 1
             
-            # Write output video only if enabled
-            if out is not None:
-                out.write(annotated_frame)
+            # Write output video
+            out.write(annotated_frame)
             
             # Display frame
-            cv2.imshow(Config.VIDEO.WINDOW_NAME, annotated_frame)
+            cv2.imshow('Pose Estimation with Activity Detection', annotated_frame)
             
             # Calculate FPS
             frame_count += 1
-            if frame_count % Config.VIDEO.FPS_UPDATE_INTERVAL == 0:
+            if frame_count % 30 == 0:
                 elapsed = time.time() - start_time
                 current_fps = frame_count / elapsed
                 
@@ -140,8 +126,7 @@ def main():
     finally:
         # Cleanup
         cap.release()
-        if out is not None:
-            out.release()
+        out.release()
         cv2.destroyAllWindows()
         
         # Final statistics
@@ -151,17 +136,8 @@ def main():
         print(f"\n🎉 PROCESSING COMPLETE!")
         print(f"📊 Total frames: {frame_count}")
         print(f"⏱️ Average FPS: {avg_fps:.2f}")
-        
-        if Config.POSE.SAVE_POSE_DATA:
-            print(f"📁 Pose data: {Config.PROJECT.POSE_DATA_CSV}")
-        else:
-            print("📁 Pose data saving was disabled")
-            
-        if Config.VIDEO.SAVE_VIDEO and out is not None:
-            print(f"🎬 Output video: {Config.PROJECT.OUTPUT_VIDEO}")
-        else:
-            print("🎬 Video saving was disabled")
-        
+        print(f"📁 Pose data: outputs/pose_data.csv")
+        print(f"🎬 Output video: {output_video_path}")
         print(f"\n🏃 ACTIVITY SUMMARY:")
         
         if activity_stats:
@@ -170,8 +146,7 @@ def main():
         else:
             print("  No activities detected")
         
-        if not (Config.VIDEO.SAVE_VIDEO or Config.POSE.SAVE_POSE_DATA):
-            print(f"\n💡 TIP: Enable saving in config.py if you want to save outputs!")
+        print(f"\n💡 TIP: Check the 'outputs/' directory for all generated files!")
 
 if __name__ == "__main__":
     main()
